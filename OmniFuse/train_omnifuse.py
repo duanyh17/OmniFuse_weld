@@ -35,13 +35,23 @@ def main():
     logger.info(f"Train samples: {len(train_files)}, Val samples: {len(val_files)}, Test samples: {len(test_files)}")
     
     # Create datasets with consistent current_len and data augmentation settings
+    # Add basic image transforms for proper tensor conversion
+    from torchvision import transforms
+    img_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    
     train_dataset = MultiModalWeldDataset(
         IMAGE_ROOT, SOUND_ROOT, CURRENT_ROOT, 
-        train_files, current_len=current_len, enable_augmentation=True
+        train_files, current_len=current_len, enable_augmentation=True,
+        transform_img=img_transform
     )
     val_dataset = MultiModalWeldDataset(
         IMAGE_ROOT, SOUND_ROOT, CURRENT_ROOT, 
-        val_files, current_len=current_len, enable_augmentation=False
+        val_files, current_len=current_len, enable_augmentation=False,
+        transform_img=img_transform
     )
     
     # Create data loaders

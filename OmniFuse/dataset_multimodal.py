@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 class MultiModalWeldDataset(Dataset):
     def __init__(self, image_root, sound_root, current_root, file_list,
                  transform_img=None, sr=22050, n_mels=128, sound_duration=2.0,
-                 current_len=3333, enable_augmentation=False, augmentation_prob=0.3):
+                 current_len=3333, enable_augmentation=False, augmentation_prob=0.3,
+                 classes=None):
         """
         Enhanced multimodal welding dataset with proper data augmentation control.
         
@@ -30,6 +31,7 @@ class MultiModalWeldDataset(Dataset):
             current_len: Fixed length for current sequences
             enable_augmentation: Whether to enable data augmentation
             augmentation_prob: Probability of applying augmentation
+            classes: List of class names (if None, uses default CLASSES)
         """
         self.image_root = image_root
         self.sound_root = sound_root
@@ -43,8 +45,18 @@ class MultiModalWeldDataset(Dataset):
         self.enable_augmentation = enable_augmentation
         self.augmentation_prob = augmentation_prob
         
+        # Handle class mapping
+        if classes is not None:
+            self.classes = classes
+        else:
+            self.classes = CLASSES
+            
+        # Create class to index mapping
+        self.class_to_idx = {cls: idx for idx, cls in enumerate(self.classes)}
+        
         logger.info(f"Dataset initialized with {len(file_list)} samples, "
                    f"current_len={current_len}, augmentation={'enabled' if enable_augmentation else 'disabled'}")
+        logger.info(f"Classes: {self.classes}")
 
     def __len__(self):
         return len(self.file_list)
@@ -90,7 +102,12 @@ class MultiModalWeldDataset(Dataset):
         """Get a single multimodal sample with proper error handling and augmentation."""
         try:
             cls, base = self.file_list[idx]
-            label = CLASSES.index(cls)
+            # Use class mapping if available, otherwise use default CLASSES
+            if cls in self.class_to_idx:
+                label = self.class_to_idx[cls]
+            else:
+                logger.warning(f"Class {cls} not found in class mapping, using index 0")
+                label = 0
 
             # 图像
             img_path = os.path.join(self.image_root, cls, base + ".jpg")
