@@ -11,7 +11,7 @@ CURRENT_ROOT = DATASET_ROOT + r"\current"
 # 六个类别
 CLASSES = [
     "burn_through",
-    "lack_of_penetration",
+    "lack_of_penetration", 
     "misalignment",
     "normal",
     "over_penetration",
@@ -31,3 +31,13 @@ LAMBDA3 = 0.5  # TLA loss
 BATCH_SIZE = 16
 LR = 1e-3
 EPOCHS = 30
+
+# 数据增强配置
+ENABLE_AUGMENTATION = True  # 是否启用数据增强
+AUGMENTATION_PROB = 0.3     # 数据增强概率
+SAFE_AUGMENTATION = True    # 使用安全的数据增强（噪声而非缩放）
+
+# 数据处理配置
+CURRENT_LENGTH_SAMPLE_NUM = 100  # 用于检测电流序列长度的采样数
+VALIDATION_SPLIT = 0.2           # 验证集比例
+TEST_SPLIT = 0.1                 # 测试集比例
